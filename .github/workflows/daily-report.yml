@@ -1,0 +1,44 @@
+name: Daily Data Report
+
+on:
+  schedule:
+    # 00:44 UTC+8 = 16:44 UTC
+    - cron: '44 16 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  daily-report:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: 'pip'
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Run daily report
+        env:
+          HF_TOKEN: ${{ secrets.HF_TOKEN }}
+          HF_REPO_NAME: ${{ secrets.HF_REPO_NAME }}
+          TURSO_URL: ${{ secrets.TURSO_URL }}
+          TURSO_TOKEN: ${{ secrets.TURSO_TOKEN }}
+          EXCHANGES: ${{ vars.EXCHANGES || 'binance' }}
+          SYMBOLS: ${{ vars.SYMBOLS || 'btcusdt' }}
+          LEVELS: ${{ vars.LEVELS || 'l1,l2' }}
+        run: python daily_report.py
+
+      - name: Commit and push reports
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add reports/
+          git diff --cached --quiet || git commit -m "chore: daily report $(date -u +%Y-%m-%d)"
+          git push

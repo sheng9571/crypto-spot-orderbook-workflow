@@ -106,9 +106,14 @@ class DayMetrics:
 
 def load_config() -> Config:
     """Load configuration from environment variables."""
+    hf_token = os.environ.get("HF_TOKEN", "")
+    hf_repo = os.environ.get("HF_REPO_NAME", "")
+    if not hf_token or not hf_repo:
+        raise SystemExit("ERROR: HF_TOKEN and HF_REPO_NAME environment variables are required")
+
     return Config(
-        hf_token=os.environ["HF_TOKEN"],
-        hf_repo=os.environ["HF_REPO_NAME"],
+        hf_token=hf_token,
+        hf_repo=hf_repo,
         turso_url=os.environ.get("TURSO_URL", ""),
         turso_token=os.environ.get("TURSO_TOKEN", ""),
         exchanges=[
@@ -191,30 +196,36 @@ def list_hf_files(date: str, config: Config) -> list[HFFile]:
     """List all parquet files for a given date from the HF dataset repo.
 
     Scans the path prefix '{date}/' and parses each file into an HFFile.
+    Returns empty list if the date directory doesn't exist on HF.
     """
     from huggingface_hub import HfApi
+    from huggingface_hub.errors import EntryNotFoundError
 
     api = HfApi(token=config.hf_token)
     prefix = f"{date}/"
     files: list[HFFile] = []
 
-    for item in api.list_repo_tree(
-        repo_id=config.hf_repo,
-        repo_type="dataset",
-        path_in_repo=prefix,
-        recursive=True,
-    ):
-        # Only process files (not directories), must be .parquet
-        if not hasattr(item, "size") or item.size is None:
-            continue
-        path = item.rfilename if hasattr(item, "rfilename") else str(item.path)
-        if not path.endswith(".parquet"):
-            continue
-        try:
-            hf_file = parse_hf_file(path, item.size)
-            files.append(hf_file)
-        except (IndexError, ValueError) as e:
-            logger.warning("Failed to parse HF file path: %s (%s)", path, e)
+    try:
+        tree_iter = api.list_repo_tree(
+            repo_id=config.hf_repo,
+            repo_type="dataset",
+            path_in_repo=prefix,
+            recursive=True,
+        )
+        for item in tree_iter:
+            # Only process files (not directories), must be .parquet
+            if not hasattr(item, "size") or item.size is None:
+                continue
+            path = item.rfilename if hasattr(item, "rfilename") else str(item.path)
+            if not path.endswith(".parquet"):
+                continue
+            try:
+                hf_file = parse_hf_file(path, item.size)
+                files.append(hf_file)
+            except (IndexError, ValueError) as e:
+                logger.warning("Failed to parse HF file path: %s (%s)", path, e)
+    except EntryNotFoundError:
+        logger.info("No data directory found for %s (404), treating as 0 files", date)
 
     return files
 
@@ -281,10 +292,10 @@ def detect_overlaps(files: list[HFFile]) -> list[OverlapGroup]:
 # ---------------------------------------------------------------------------
 
 
-def compute_metrics(files: list[HFFile], gaps: list[Gap]) -> DayMetrics:
+def compute_metrics(files: list[HFFile], gaps: list[Gap], date: str = "") -> DayMetrics:
     """Compute daily metrics from the file list."""
     if not files:
-        return DayMetrics(date="", gaps=gaps)
+        return DayMetrics(date=date, gaps=gaps)
 
     date = files[0].date
     total_files = len(files)
@@ -504,7 +515,10 @@ def load_history(history_path: str = "reports/history.json") -> dict:
 
 
 def update_history(history: dict, metrics: DayMetrics) -> dict:
-    """Append today's metrics to history and update totals."""
+    """Append today's metrics to history and update totals.
+
+    If an entry for the same date already exists, replace it (idempotent re-run).
+    """
     day_entry = {
         "date": metrics.date,
         "total_files": metrics.total_files,
@@ -527,10 +541,25 @@ def update_history(history: dict, metrics: DayMetrics) -> dict:
         },
     }
 
-    history["daily"].append(day_entry)
+    # Check for existing entry with same date (idempotent re-run)
+    existing_idx = None
+    for i, entry in enumerate(history["daily"]):
+        if entry["date"] == metrics.date:
+            existing_idx = i
+            break
+
+    totals = history["totals"]
+
+    if existing_idx is not None:
+        # Replace existing entry, adjust totals (subtract old, add new)
+        old_entry = history["daily"][existing_idx]
+        totals["all_time_bytes"] -= old_entry["total_bytes"]
+        totals["all_time_files"] -= old_entry["total_files"]
+        history["daily"][existing_idx] = day_entry
+    else:
+        history["daily"].append(day_entry)
 
     # Update totals
-    totals = history["totals"]
     totals["all_time_bytes"] += metrics.total_bytes
     totals["all_time_files"] += metrics.total_files
     totals["last_date"] = metrics.date
@@ -542,6 +571,7 @@ def update_history(history: dict, metrics: DayMetrics) -> dict:
 
 def save_history(history: dict, history_path: str = "reports/history.json") -> None:
     """Write history JSON to disk."""
+    os.makedirs(os.path.dirname(history_path), exist_ok=True)
     with open(history_path, "w", encoding="utf-8") as f:
         json.dump(history, f, indent=2, ensure_ascii=False)
 
@@ -711,11 +741,21 @@ def cleanup_heartbeats(turso_url: str, turso_token: str, threshold_days: int = 7
 
 
 def git_commit_and_push(files: list[str], date: str) -> None:
-    """Stage, commit, and push report files."""
+    """Stage, commit, and push report files. Skips if nothing changed."""
     import subprocess
 
     try:
         subprocess.run(["git", "add"] + files, check=True)
+
+        # Check if there are staged changes
+        result = subprocess.run(
+            ["git", "diff", "--cached", "--quiet"],
+            capture_output=True,
+        )
+        if result.returncode == 0:
+            logger.info("No changes to commit, skipping git push")
+            return
+
         subprocess.run(
             ["git", "commit", "-m", f"chore: daily report {date}"],
             check=True,
@@ -762,7 +802,7 @@ def main() -> None:
 
     # 3. Detect gaps and compute metrics
     gaps = detect_gaps(files, config)
-    metrics = compute_metrics(files, gaps)
+    metrics = compute_metrics(files, gaps, date=today)
     metrics.merges = merges
 
     # 4. Update history

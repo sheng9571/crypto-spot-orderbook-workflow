@@ -654,11 +654,139 @@ def save_report(report_md: str, date: str) -> str:
 
 
 # ---------------------------------------------------------------------------
-# Main (placeholder for subsequent tasks)
+# Turso Heartbeat Cleanup
 # ---------------------------------------------------------------------------
 
 
-if __name__ == "__main__":
+def cleanup_heartbeats(turso_url: str, turso_token: str, threshold_days: int = 7) -> int:
+    """Delete stale heartbeat records from Turso.
+
+    Deletes records where status='stopped' AND updated_at is older than threshold_days.
+    Returns number of rows deleted. Returns 0 on failure (non-critical).
+    """
+    import requests
+
+    if not turso_url or not turso_token:
+        logger.info("Turso not configured, skipping heartbeat cleanup")
+        return 0
+
+    sql = (
+        "DELETE FROM heartbeats "
+        "WHERE status = 'stopped' "
+        f"AND updated_at < datetime('now', '-{threshold_days} days')"
+    )
+
+    try:
+        resp = requests.post(
+            f"{turso_url}/v2/pipeline",
+            headers={
+                "Authorization": f"Bearer {turso_token}",
+                "Content-Type": "application/json",
+            },
+            json={
+                "requests": [
+                    {"type": "execute", "stmt": {"sql": sql}},
+                    {"type": "close"},
+                ]
+            },
+            timeout=30,
+        )
+        resp.raise_for_status()
+        data = resp.json()
+        # Extract affected row count from response
+        results = data.get("results", [])
+        if results and "response" in results[0]:
+            affected = results[0]["response"].get("result", {}).get("affected_row_count", 0)
+            logger.info("Turso cleanup: deleted %d stale heartbeat records", affected)
+            return affected
+        return 0
+    except Exception as e:
+        logger.warning("Turso cleanup failed (non-critical): %s", e)
+        return 0
+
+
+# ---------------------------------------------------------------------------
+# Git Commit & Push
+# ---------------------------------------------------------------------------
+
+
+def git_commit_and_push(files: list[str], date: str) -> None:
+    """Stage, commit, and push report files."""
+    import subprocess
+
+    try:
+        subprocess.run(["git", "add"] + files, check=True)
+        subprocess.run(
+            ["git", "commit", "-m", f"chore: daily report {date}"],
+            check=True,
+        )
+        subprocess.run(["git", "push"], check=True)
+        logger.info("Git push successful")
+    except subprocess.CalledProcessError as e:
+        logger.error("Git operation failed: %s", e)
+        raise
+
+
+# ---------------------------------------------------------------------------
+# Main
+# ---------------------------------------------------------------------------
+
+
+def main() -> None:
+    """Orchestrate: load config -> merge -> report -> cleanup -> commit."""
+    logging.basicConfig(
+        level=logging.INFO,
+        format="%(asctime)s [%(levelname)s] %(name)s: %(message)s",
+    )
+
     config = load_config()
-    print(f"Config loaded: {config.hf_repo}, exchanges={config.exchanges}, "
-          f"symbols={config.symbols}, levels={config.levels}")
+    today = datetime.now(tz=timezone.utc).strftime("%Y-%m-%d")
+    logger.info("Starting daily report for %s", today)
+
+    # 1. List HF files for today
+    files = list_hf_files(today, config)
+    logger.info("Found %d files for %s", len(files), today)
+
+    # 2. Detect and merge overlaps (before reporting so metrics reflect clean state)
+    overlaps = detect_overlaps(files)
+    merges: list[MergeResult] = []
+    if overlaps:
+        logger.info("Detected %d overlap groups, merging...", len(overlaps))
+        for group in overlaps:
+            result = merge_overlap(group, config)
+            if result:
+                merges.append(result)
+        # Re-scan after merge to get clean file list
+        files = list_hf_files(today, config)
+        logger.info("After merge: %d files", len(files))
+
+    # 3. Detect gaps and compute metrics
+    gaps = detect_gaps(files, config)
+    metrics = compute_metrics(files, gaps)
+    metrics.merges = merges
+
+    # 4. Update history
+    history = load_history()
+    history = update_history(history, metrics)
+    save_history(history)
+
+    # 5. Generate and save report
+    report_md = generate_report_md(metrics, history, merges)
+    report_path = save_report(report_md, today)
+    logger.info("Report saved to %s", report_path)
+
+    # 6. Turso heartbeat cleanup (non-critical)
+    deleted = cleanup_heartbeats(
+        config.turso_url, config.turso_token, config.cleanup_threshold_days
+    )
+    if deleted:
+        logger.info("Cleaned up %d stale heartbeat records", deleted)
+
+    # 7. Git commit and push
+    git_commit_and_push([report_path, "reports/history.json"], today)
+
+    logger.info("Daily report workflow complete")
+
+
+if __name__ == "__main__":
+    main()

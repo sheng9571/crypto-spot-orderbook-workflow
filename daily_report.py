@@ -580,9 +580,11 @@ def update_history(history: dict, metrics: DayMetrics) -> dict:
     # Update totals
     totals["all_time_bytes"] += metrics.total_bytes
     totals["all_time_files"] += metrics.total_files
-    totals["last_date"] = metrics.date
-    if totals["first_date"] is None:
+    # Update date range (handle out-of-order processing)
+    if totals["first_date"] is None or metrics.date < totals["first_date"]:
         totals["first_date"] = metrics.date
+    if totals["last_date"] is None or metrics.date > totals["last_date"]:
+        totals["last_date"] = metrics.date
 
     return history
 
@@ -793,10 +795,9 @@ def generate_summary_readme(history: dict) -> str:
 
 
 def save_summary_readme(history: dict) -> str:
-    """Generate and save the summary README. Returns file path."""
+    """Generate and save the summary README at repo root. Returns file path."""
     readme_md = generate_summary_readme(history)
-    readme_path = "reports/README.md"
-    os.makedirs(os.path.dirname(readme_path), exist_ok=True)
+    readme_path = "README.md"
     with open(readme_path, "w", encoding="utf-8") as f:
         f.write(readme_md)
     return readme_path

@@ -1,9 +1,308 @@
 {
-  "daily": [],
+  "daily": [
+    {
+      "date": "2026-07-11",
+      "total_files": 0,
+      "total_bytes": 0,
+      "gaps": [
+        {
+          "exchange": "binance",
+          "symbol": "btcusdt",
+          "level": "l1",
+          "hour": 0
+        },
+        {
+          "exchange": "binance",
+          "symbol": "btcusdt",
+          "level": "l1",
+          "hour": 1
+        },
+        {
+          "exchange": "binance",
+          "symbol": "btcusdt",
+          "level": "l1",
+          "hour": 2
+        },
+        {
+          "exchange": "binance",
+          "symbol": "btcusdt",
+          "level": "l1",
+          "hour": 3
+        },
+        {
+          "exchange": "binance",
+          "symbol": "btcusdt",
+          "level": "l1",
+          "hour": 4
+        },
+        {
+          "exchange": "binance",
+          "symbol": "btcusdt",
+          "level": "l1",
+          "hour": 5
+        },
+        {
+          "exchange": "binance",
+          "symbol": "btcusdt",
+          "level": "l1",
+          "hour": 6
+        },
+        {
+          "exchange": "binance",
+          "symbol": "btcusdt",
+          "level": "l1",
+          "hour": 7
+        },
+        {
+          "exchange": "binance",
+          "symbol": "btcusdt",
+          "level": "l1",
+          "hour": 8
+        },
+        {
+          "exchange": "binance",
+          "symbol": "btcusdt",
+          "level": "l1",
+          "hour": 9
+        },
+        {
+          "exchange": "binance",
+          "symbol": "btcusdt",
+          "level": "l1",
+          "hour": 10
+        },
+        {
+          "exchange": "binance",
+          "symbol": "btcusdt",
+          "level": "l1",
+          "hour": 11
+        },
+        {
+          "exchange": "binance",
+          "symbol": "btcusdt",
+          "level": "l1",
+          "hour": 12
+        },
+        {
+          "exchange": "binance",
+          "symbol": "btcusdt",
+          "level": "l1",
+          "hour": 13
+        },
+        {
+          "exchange": "binance",
+          "symbol": "btcusdt",
+          "level": "l1",
+          "hour": 14
+        },
+        {
+          "exchange": "binance",
+          "symbol": "btcusdt",
+          "level": "l1",
+          "hour": 15
+        },
+        {
+          "exchange": "binance",
+          "symbol": "btcusdt",
+          "level": "l1",
+          "hour": 16
+        },
+        {
+          "exchange": "binance",
+          "symbol": "btcusdt",
+          "level": "l1",
+          "hour": 17
+        },
+        {
+          "exchange": "binance",
+          "symbol": "btcusdt",
+          "level": "l1",
+          "hour": 18
+        },
+        {
+          "exchange": "binance",
+          "symbol": "btcusdt",
+          "level": "l1",
+          "hour": 19
+        },
+        {
+          "exchange": "binance",
+          "symbol": "btcusdt",
+          "level": "l1",
+          "hour": 20
+        },
+        {
+          "exchange": "binance",
+          "symbol": "btcusdt",
+          "level": "l1",
+          "hour": 21
+        },
+        {
+          "exchange": "binance",
+          "symbol": "btcusdt",
+          "level": "l1",
+          "hour": 22
+        },
+        {
+          "exchange": "binance",
+          "symbol": "btcusdt",
+          "level": "l1",
+          "hour": 23
+        },
+        {
+          "exchange": "binance",
+          "symbol": "btcusdt",
+          "level": "l2",
+          "hour": 0
+        },
+        {
+          "exchange": "binance",
+          "symbol": "btcusdt",
+          "level": "l2",
+          "hour": 1
+        },
+        {
+          "exchange": "binance",
+          "symbol": "btcusdt",
+          "level": "l2",
+          "hour": 2
+        },
+        {
+          "exchange": "binance",
+          "symbol": "btcusdt",
+          "level": "l2",
+          "hour": 3
+        },
+        {
+          "exchange": "binance",
+          "symbol": "btcusdt",
+          "level": "l2",
+          "hour": 4
+        },
+        {
+          "exchange": "binance",
+          "symbol": "btcusdt",
+          "level": "l2",
+          "hour": 5
+        },
+        {
+          "exchange": "binance",
+          "symbol": "btcusdt",
+          "level": "l2",
+          "hour": 6
+        },
+        {
+          "exchange": "binance",
+          "symbol": "btcusdt",
+          "level": "l2",
+          "hour": 7
+        },
+        {
+          "exchange": "binance",
+          "symbol": "btcusdt",
+          "level": "l2",
+          "hour": 8
+        },
+        {
+          "exchange": "binance",
+          "symbol": "btcusdt",
+          "level": "l2",
+          "hour": 9
+        },
+        {
+          "exchange": "binance",
+          "symbol": "btcusdt",
+          "level": "l2",
+          "hour": 10
+        },
+        {
+          "exchange": "binance",
+          "symbol": "btcusdt",
+          "level": "l2",
+          "hour": 11
+        },
+        {
+          "exchange": "binance",
+          "symbol": "btcusdt",
+          "level": "l2",
+          "hour": 12
+        },
+        {
+          "exchange": "binance",
+          "symbol": "btcusdt",
+          "level": "l2",
+          "hour": 13
+        },
+        {
+          "exchange": "binance",
+          "symbol": "btcusdt",
+          "level": "l2",
+          "hour": 14
+        },
+        {
+          "exchange": "binance",
+          "symbol": "btcusdt",
+          "level": "l2",
+          "hour": 15
+        },
+        {
+          "exchange": "binance",
+          "symbol": "btcusdt",
+          "level": "l2",
+          "hour": 16
+        },
+        {
+          "exchange": "binance",
+          "symbol": "btcusdt",
+          "level": "l2",
+          "hour": 17
+        },
+        {
+          "exchange": "binance",
+          "symbol": "btcusdt",
+          "level": "l2",
+          "hour": 18
+        },
+        {
+          "exchange": "binance",
+          "symbol": "btcusdt",
+          "level": "l2",
+          "hour": 19
+        },
+        {
+          "exchange": "binance",
+          "symbol": "btcusdt",
+          "level": "l2",
+          "hour": 20
+        },
+        {
+          "exchange": "binance",
+          "symbol": "btcusdt",
+          "level": "l2",
+          "hour": 21
+        },
+        {
+          "exchange": "binance",
+          "symbol": "btcusdt",
+          "level": "l2",
+          "hour": 22
+        },
+        {
+          "exchange": "binance",
+          "symbol": "btcusdt",
+          "level": "l2",
+          "hour": 23
+        }
+      ],
+      "by_exchange": {},
+      "by_symbol": {},
+      "by_exchange_symbol": {}
+    }
+  ],
   "totals": {
     "all_time_bytes": 0,
     "all_time_files": 0,
-    "first_date": null,
-    "last_date": null
+    "first_date": "2026-07-11",
+    "last_date": "2026-07-11"
   }
 }

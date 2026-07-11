@@ -852,6 +852,10 @@ def cleanup_heartbeats(turso_url: str, turso_token: str, threshold_days: int = 7
         logger.info("Turso not configured, skipping heartbeat cleanup")
         return 0
 
+    # Normalize URL: libsql:// -> https:// (libsql is for SDK, HTTP API uses HTTPS)
+    if turso_url.startswith("libsql://"):
+        turso_url = turso_url.replace("libsql://", "https://", 1)
+
     sql = (
         "DELETE FROM heartbeats "
         "WHERE status = 'stopped' "
@@ -1049,7 +1053,7 @@ def main() -> None:
     if report_paths:
         save_history(history)
 
-    # Generate summary README
+    # Generate summary README (always, even if no new dates)
     readme_path = save_summary_readme(history)
 
     # Rotate old daily reports (keep 30 days)
@@ -1062,13 +1066,15 @@ def main() -> None:
     if deleted:
         logger.info("Cleaned up %d stale heartbeat records", deleted)
 
-    # Git commit and push all reports at once
+    # Git commit and push
     all_files = report_paths + [readme_path, "reports/history.json"]
     if rotated:
         all_files.extend(rotated)
-    if report_paths or rotated:
-        dates_str = f"{dates_to_process[0]}" if len(dates_to_process) == 1 else f"{dates_to_process[0]}..{dates_to_process[-1]}"
-        git_commit_and_push(all_files, dates_str)
+    # Always attempt commit (git_commit_and_push handles no-diff gracefully)
+    dates_str = "update"
+    if dates_to_process:
+        dates_str = dates_to_process[0] if len(dates_to_process) == 1 else f"{dates_to_process[0]}..{dates_to_process[-1]}"
+    git_commit_and_push(all_files, dates_str)
 
     logger.info("Daily report workflow complete")
 

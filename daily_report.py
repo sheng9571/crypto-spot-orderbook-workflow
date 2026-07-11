@@ -2,9 +2,13 @@
 
 from __future__ import annotations
 
+import logging
 import os
+from collections import defaultdict
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
+
+logger = logging.getLogger(__name__)
 
 
 # ---------------------------------------------------------------------------
@@ -172,6 +176,168 @@ def parse_hf_file(path: str, size: int) -> HFFile:
         hour=hour,
         instance_id=instance_id,
         start_ts=start_ts,
+    )
+
+
+# ---------------------------------------------------------------------------
+# HF Scanning
+# ---------------------------------------------------------------------------
+
+
+def list_hf_files(date: str, config: Config) -> list[HFFile]:
+    """List all parquet files for a given date from the HF dataset repo.
+
+    Scans the path prefix '{date}/' and parses each file into an HFFile.
+    """
+    from huggingface_hub import HfApi
+
+    api = HfApi(token=config.hf_token)
+    prefix = f"{date}/"
+    files: list[HFFile] = []
+
+    for item in api.list_repo_tree(
+        repo_id=config.hf_repo,
+        repo_type="dataset",
+        path_in_repo=prefix,
+        recursive=True,
+    ):
+        # Only process files (not directories), must be .parquet
+        if not hasattr(item, "size") or item.size is None:
+            continue
+        path = item.rfilename if hasattr(item, "rfilename") else str(item.path)
+        if not path.endswith(".parquet"):
+            continue
+        try:
+            hf_file = parse_hf_file(path, item.size)
+            files.append(hf_file)
+        except (IndexError, ValueError) as e:
+            logger.warning("Failed to parse HF file path: %s (%s)", path, e)
+
+    return files
+
+
+# ---------------------------------------------------------------------------
+# Gap Detection
+# ---------------------------------------------------------------------------
+
+
+def detect_gaps(files: list[HFFile], config: Config) -> list[Gap]:
+    """Detect missing hours for each exchange/symbol/level combination.
+
+    A gap exists for hour H if no file covers that hour for the given combo.
+    """
+    # Build a set of (exchange, symbol, level, hour) that exist
+    covered: set[tuple[str, str, str, int]] = set()
+    for f in files:
+        covered.add((f.exchange, f.symbol, f.level, f.hour))
+
+    gaps: list[Gap] = []
+    for exchange in config.exchanges:
+        for symbol in config.symbols:
+            for level in config.levels:
+                for hour in range(24):
+                    if (exchange, symbol, level, hour) not in covered:
+                        gaps.append(Gap(
+                            exchange=exchange,
+                            symbol=symbol,
+                            level=level,
+                            hour=hour,
+                        ))
+
+    return gaps
+
+
+# ---------------------------------------------------------------------------
+# Overlap Detection
+# ---------------------------------------------------------------------------
+
+
+def detect_overlaps(files: list[HFFile]) -> list[OverlapGroup]:
+    """Find groups of files sharing (exchange, symbol, level, hour) with different instance_ids."""
+    groups: dict[tuple[str, str, str, int], list[HFFile]] = defaultdict(list)
+    for f in files:
+        groups[(f.exchange, f.symbol, f.level, f.hour)].append(f)
+
+    overlaps: list[OverlapGroup] = []
+    for (exchange, symbol, level, hour), group_files in groups.items():
+        instance_ids = {f.instance_id for f in group_files}
+        if len(instance_ids) > 1:
+            overlaps.append(OverlapGroup(
+                exchange=exchange,
+                symbol=symbol,
+                level=level,
+                hour=hour,
+                files=group_files,
+            ))
+
+    return overlaps
+
+
+# ---------------------------------------------------------------------------
+# Metrics Computation
+# ---------------------------------------------------------------------------
+
+
+def compute_metrics(files: list[HFFile], gaps: list[Gap]) -> DayMetrics:
+    """Compute daily metrics from the file list."""
+    if not files:
+        return DayMetrics(date="", gaps=gaps)
+
+    date = files[0].date
+    total_files = len(files)
+    total_bytes = sum(f.size for f in files)
+
+    by_exchange: dict[str, ExchangeMetrics] = {}
+    by_symbol: dict[str, SymbolMetrics] = {}
+    by_exchange_symbol: dict[str, dict[str, SymbolMetrics]] = defaultdict(dict)
+
+    # Per-exchange
+    exchange_files: dict[str, list[HFFile]] = defaultdict(list)
+    for f in files:
+        exchange_files[f.exchange].append(f)
+
+    # Gaps per exchange
+    exchange_gaps: set[str] = {g.exchange for g in gaps}
+
+    for exchange, ex_files in exchange_files.items():
+        by_exchange[exchange] = ExchangeMetrics(
+            files=len(ex_files),
+            bytes=sum(f.size for f in ex_files),
+            has_gaps=exchange in exchange_gaps,
+        )
+
+    # Per-symbol
+    symbol_files: dict[str, list[HFFile]] = defaultdict(list)
+    for f in files:
+        symbol_files[f.symbol].append(f)
+
+    for symbol, sym_files in symbol_files.items():
+        by_symbol[symbol] = SymbolMetrics(
+            files=len(sym_files),
+            bytes=sum(f.size for f in sym_files),
+        )
+
+    # Per-exchange-symbol
+    ex_sym_files: dict[tuple[str, str], list[HFFile]] = defaultdict(list)
+    for f in files:
+        ex_sym_files[(f.exchange, f.symbol)].append(f)
+
+    for (exchange, symbol), es_files in ex_sym_files.items():
+        if exchange not in by_exchange_symbol:
+            by_exchange_symbol[exchange] = {}
+        by_exchange_symbol[exchange][symbol] = SymbolMetrics(
+            files=len(es_files),
+            bytes=sum(f.size for f in es_files),
+        )
+
+    return DayMetrics(
+        date=date,
+        total_files=total_files,
+        total_bytes=total_bytes,
+        gaps=gaps,
+        by_exchange=by_exchange,
+        by_symbol=by_symbol,
+        by_exchange_symbol=dict(by_exchange_symbol),
     )
 
 

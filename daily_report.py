@@ -768,62 +768,147 @@ def git_commit_and_push(files: list[str], date: str) -> None:
 
 
 # ---------------------------------------------------------------------------
+# HF Date Discovery
+# ---------------------------------------------------------------------------
+
+
+def list_hf_dates(config: Config) -> list[str]:
+    """List all date directories in the HF repo root (e.g. ['2026-07-10', '2026-07-11']).
+
+    Only returns entries that look like YYYY-MM-DD date folders.
+    """
+    import re
+
+    from huggingface_hub import HfApi
+
+    api = HfApi(token=config.hf_token)
+    date_pattern = re.compile(r"^\d{4}-\d{2}-\d{2}$")
+    dates: list[str] = []
+
+    for item in api.list_repo_tree(
+        repo_id=config.hf_repo,
+        repo_type="dataset",
+        path_in_repo="",
+        recursive=False,
+    ):
+        # Directories have no size attribute or size is None
+        name = item.rfilename if hasattr(item, "rfilename") else str(item.path)
+        # Remove trailing slash if present
+        name = name.strip("/")
+        if date_pattern.match(name):
+            dates.append(name)
+
+    return sorted(dates)
+
+
+# ---------------------------------------------------------------------------
+# Process Single Date
+# ---------------------------------------------------------------------------
+
+
+def process_date(date: str, config: Config, history: dict) -> tuple[str, DayMetrics]:
+    """Process a single date: merge overlaps, detect gaps, compute metrics, save report.
+
+    Returns (report_path, metrics).
+    """
+    # 1. List HF files
+    files = list_hf_files(date, config)
+    logger.info("[%s] Found %d files", date, len(files))
+
+    # 2. Detect and merge overlaps
+    overlaps = detect_overlaps(files)
+    merges: list[MergeResult] = []
+    if overlaps:
+        logger.info("[%s] Detected %d overlap groups, merging...", date, len(overlaps))
+        for group in overlaps:
+            result = merge_overlap(group, config)
+            if result:
+                merges.append(result)
+        # Re-scan after merge
+        files = list_hf_files(date, config)
+
+    # 3. Detect gaps and compute metrics
+    gaps = detect_gaps(files, config)
+    metrics = compute_metrics(files, gaps, date=date)
+    metrics.merges = merges
+
+    # 4. Update history (in-place)
+    update_history(history, metrics)
+
+    # 5. Generate and save report
+    report_md = generate_report_md(metrics, history, merges)
+    report_path = save_report(report_md, date)
+
+    return report_path, metrics
+
+
+# ---------------------------------------------------------------------------
 # Main
 # ---------------------------------------------------------------------------
 
 
 def main() -> None:
-    """Orchestrate: load config -> merge -> report -> cleanup -> commit."""
+    """Orchestrate: find missing dates -> process each -> cleanup -> commit."""
     logging.basicConfig(
         level=logging.INFO,
         format="%(asctime)s [%(levelname)s] %(name)s: %(message)s",
     )
 
     config = load_config()
-    today = datetime.now(tz=timezone.utc).strftime("%Y-%m-%d")
-    logger.info("Starting daily report for %s", today)
 
-    # 1. List HF files for today
-    files = list_hf_files(today, config)
-    logger.info("Found %d files for %s", len(files), today)
+    # Determine which dates to process
+    force_date = os.environ.get("REPORT_DATE", "").strip()
 
-    # 2. Detect and merge overlaps (before reporting so metrics reflect clean state)
-    overlaps = detect_overlaps(files)
-    merges: list[MergeResult] = []
-    if overlaps:
-        logger.info("Detected %d overlap groups, merging...", len(overlaps))
-        for group in overlaps:
-            result = merge_overlap(group, config)
-            if result:
-                merges.append(result)
-        # Re-scan after merge to get clean file list
-        files = list_hf_files(today, config)
-        logger.info("After merge: %d files", len(files))
+    if force_date:
+        # Manual mode: process only the specified date
+        dates_to_process = [force_date]
+        logger.info("Manual mode: processing date %s", force_date)
+    else:
+        # Auto mode: find all HF dates not yet in history
+        from datetime import timedelta
 
-    # 3. Detect gaps and compute metrics
-    gaps = detect_gaps(files, config)
-    metrics = compute_metrics(files, gaps, date=today)
-    metrics.merges = merges
+        all_hf_dates = list_hf_dates(config)
+        logger.info("Found %d date folders on HF", len(all_hf_dates))
 
-    # 4. Update history
+        history = load_history()
+        already_done = {entry["date"] for entry in history["daily"]}
+
+        # Only process dates up to yesterday UTC (today may still be incomplete)
+        yesterday = (datetime.now(tz=timezone.utc) - timedelta(days=1)).strftime("%Y-%m-%d")
+        dates_to_process = [
+            d for d in all_hf_dates
+            if d not in already_done and d <= yesterday
+        ]
+
+        if not dates_to_process:
+            logger.info("All dates up to %s already processed, nothing to do", yesterday)
+
+    # Load history (may already be loaded above, but safe to reload)
     history = load_history()
-    history = update_history(history, metrics)
-    save_history(history)
 
-    # 5. Generate and save report
-    report_md = generate_report_md(metrics, history, merges)
-    report_path = save_report(report_md, today)
-    logger.info("Report saved to %s", report_path)
+    # Process each date
+    report_paths: list[str] = []
+    for date in sorted(dates_to_process):
+        logger.info("Processing %s...", date)
+        report_path, _ = process_date(date, config, history)
+        report_paths.append(report_path)
 
-    # 6. Turso heartbeat cleanup (non-critical)
+    # Save history once (all dates accumulated)
+    if report_paths:
+        save_history(history)
+
+    # Turso heartbeat cleanup (non-critical, run once per workflow)
     deleted = cleanup_heartbeats(
         config.turso_url, config.turso_token, config.cleanup_threshold_days
     )
     if deleted:
         logger.info("Cleaned up %d stale heartbeat records", deleted)
 
-    # 7. Git commit and push
-    git_commit_and_push([report_path, "reports/history.json"], today)
+    # Git commit and push all reports at once
+    if report_paths:
+        all_files = report_paths + ["reports/history.json"]
+        dates_str = f"{dates_to_process[0]}" if len(dates_to_process) == 1 else f"{dates_to_process[0]}..{dates_to_process[-1]}"
+        git_commit_and_push(all_files, dates_str)
 
     logger.info("Daily report workflow complete")
 

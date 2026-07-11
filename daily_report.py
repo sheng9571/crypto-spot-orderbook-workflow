@@ -95,6 +95,7 @@ class DayMetrics:
     gaps: list[Gap] = field(default_factory=list)
     by_exchange: dict[str, ExchangeMetrics] = field(default_factory=dict)
     by_symbol: dict[str, SymbolMetrics] = field(default_factory=dict)
+    by_level: dict[str, SymbolMetrics] = field(default_factory=dict)
     by_exchange_symbol: dict[str, dict[str, SymbolMetrics]] = field(default_factory=dict)
     merges: list[MergeResult] = field(default_factory=list)
 
@@ -344,6 +345,18 @@ def compute_metrics(files: list[HFFile], gaps: list[Gap], date: str = "") -> Day
             bytes=sum(f.size for f in es_files),
         )
 
+    # Per-level
+    by_level: dict[str, SymbolMetrics] = {}
+    level_files: dict[str, list[HFFile]] = defaultdict(list)
+    for f in files:
+        level_files[f.level].append(f)
+
+    for level, lv_files in level_files.items():
+        by_level[level] = SymbolMetrics(
+            files=len(lv_files),
+            bytes=sum(f.size for f in lv_files),
+        )
+
     return DayMetrics(
         date=date,
         total_files=total_files,
@@ -351,6 +364,7 @@ def compute_metrics(files: list[HFFile], gaps: list[Gap], date: str = "") -> Day
         gaps=gaps,
         by_exchange=by_exchange,
         by_symbol=by_symbol,
+        by_level=by_level,
         by_exchange_symbol=dict(by_exchange_symbol),
     )
 
@@ -535,6 +549,10 @@ def update_history(history: dict, metrics: DayMetrics) -> dict:
             k: {"files": v.files, "bytes": v.bytes}
             for k, v in metrics.by_symbol.items()
         },
+        "by_level": {
+            k: {"files": v.files, "bytes": v.bytes}
+            for k, v in metrics.by_level.items()
+        },
         "by_exchange_symbol": {
             ex: {sym: {"files": sm.files, "bytes": sm.bytes} for sym, sm in syms.items()}
             for ex, syms in metrics.by_exchange_symbol.items()
@@ -681,6 +699,140 @@ def save_report(report_md: str, date: str) -> str:
     with open(report_path, "w", encoding="utf-8") as f:
         f.write(report_md)
     return report_path
+
+
+# ---------------------------------------------------------------------------
+# Summary README
+# ---------------------------------------------------------------------------
+
+
+def generate_summary_readme(history: dict) -> str:
+    """Generate reports/README.md with overall stats and recent daily summaries."""
+    lines: list[str] = []
+    totals = history["totals"]
+    daily = history["daily"]
+
+    lines.append("# Orderbook Data Collection Summary")
+    lines.append("")
+
+    # Overall stats
+    lines.append("## Overall")
+    lines.append("")
+    lines.append("| Metric | Value |")
+    lines.append("|--------|-------|")
+    lines.append(f"| First date | {totals.get('first_date', 'N/A')} |")
+    lines.append(f"| Last date | {totals.get('last_date', 'N/A')} |")
+    lines.append(f"| Total days | {len(daily)} |")
+    lines.append(f"| Total files | {totals.get('all_time_files', 0):,} |")
+    lines.append(f"| Total size | {_format_bytes(totals.get('all_time_bytes', 0))} |")
+
+    if daily:
+        rolling_7d = compute_rolling_totals(history, 7)
+        rolling_30d = compute_rolling_totals(history, 30)
+        lines.append(f"| Size (7-day) | {_format_bytes(rolling_7d)} |")
+        lines.append(f"| Size (30-day) | {_format_bytes(rolling_30d)} |")
+
+    lines.append("")
+
+    # By Exchange & Level breakdown (accumulated from all daily entries)
+    if daily:
+        exchange_totals: dict[str, dict[str, int]] = defaultdict(lambda: {"files": 0, "bytes": 0})
+        level_totals: dict[str, dict[str, int]] = defaultdict(lambda: {"files": 0, "bytes": 0})
+        for entry in daily:
+            for ex, ex_data in entry.get("by_exchange", {}).items():
+                exchange_totals[ex]["files"] += ex_data.get("files", 0)
+                exchange_totals[ex]["bytes"] += ex_data.get("bytes", 0)
+            for level, lv_data in entry.get("by_level", {}).items():
+                level_totals[level]["files"] += lv_data.get("files", 0)
+                level_totals[level]["bytes"] += lv_data.get("bytes", 0)
+
+        if exchange_totals:
+            lines.append("## By Exchange")
+            lines.append("")
+            lines.append("| Exchange | Total Files | Total Size |")
+            lines.append("|----------|-------------|------------|")
+            for ex in sorted(exchange_totals):
+                d = exchange_totals[ex]
+                lines.append(f"| {ex} | {d['files']:,} | {_format_bytes(d['bytes'])} |")
+            lines.append("")
+
+        if level_totals:
+            lines.append("## By Level")
+            lines.append("")
+            lines.append("| Level | Total Files | Total Size |")
+            lines.append("|-------|-------------|------------|")
+            for level in sorted(level_totals):
+                d = level_totals[level]
+                lines.append(f"| {level} | {d['files']:,} | {_format_bytes(d['bytes'])} |")
+            lines.append("")
+
+    # Recent 7 days table
+    recent = daily[-7:] if len(daily) >= 7 else daily
+    if recent:
+        lines.append("## Recent Days")
+        lines.append("")
+        lines.append("| Date | Files | Size | Gaps |")
+        lines.append("|------|-------|------|------|")
+        for entry in reversed(recent):
+            gap_count = len(entry.get("gaps", []))
+            gap_str = f"\u26a0\ufe0f {gap_count}" if gap_count > 0 else "\u2705 0"
+            lines.append(
+                f"| [{entry['date']}](daily/{entry['date']}.md) "
+                f"| {entry['total_files']} "
+                f"| {_format_bytes(entry['total_bytes'])} "
+                f"| {gap_str} |"
+            )
+        lines.append("")
+
+    # Footer
+    lines.append("---")
+    lines.append(f"*Last updated: {datetime.now(tz=timezone.utc).strftime('%Y-%m-%d %H:%M UTC')}*")
+    lines.append("")
+
+    return "\n".join(lines)
+
+
+def save_summary_readme(history: dict) -> str:
+    """Generate and save the summary README. Returns file path."""
+    readme_md = generate_summary_readme(history)
+    readme_path = "reports/README.md"
+    os.makedirs(os.path.dirname(readme_path), exist_ok=True)
+    with open(readme_path, "w", encoding="utf-8") as f:
+        f.write(readme_md)
+    return readme_path
+
+
+# ---------------------------------------------------------------------------
+# Report Rotation
+# ---------------------------------------------------------------------------
+
+
+def rotate_reports(keep_days: int = 30) -> list[str]:
+    """Delete daily report markdown files older than keep_days.
+
+    Returns list of deleted file paths (for git rm).
+    """
+    from datetime import timedelta
+
+    cutoff = (datetime.now(tz=timezone.utc) - timedelta(days=keep_days)).strftime("%Y-%m-%d")
+    report_dir = "reports/daily"
+    deleted: list[str] = []
+
+    if not os.path.isdir(report_dir):
+        return deleted
+
+    for filename in os.listdir(report_dir):
+        if not filename.endswith(".md"):
+            continue
+        # filename format: YYYY-MM-DD.md
+        date_str = filename.removesuffix(".md")
+        if date_str < cutoff:
+            filepath = os.path.join(report_dir, filename)
+            os.remove(filepath)
+            deleted.append(filepath)
+            logger.info("Rotated old report: %s", filepath)
+
+    return deleted
 
 
 # ---------------------------------------------------------------------------
@@ -897,6 +1049,12 @@ def main() -> None:
     if report_paths:
         save_history(history)
 
+    # Generate summary README
+    readme_path = save_summary_readme(history)
+
+    # Rotate old daily reports (keep 30 days)
+    rotated = rotate_reports(keep_days=30)
+
     # Turso heartbeat cleanup (non-critical, run once per workflow)
     deleted = cleanup_heartbeats(
         config.turso_url, config.turso_token, config.cleanup_threshold_days
@@ -905,8 +1063,10 @@ def main() -> None:
         logger.info("Cleaned up %d stale heartbeat records", deleted)
 
     # Git commit and push all reports at once
-    if report_paths:
-        all_files = report_paths + ["reports/history.json"]
+    all_files = report_paths + [readme_path, "reports/history.json"]
+    if rotated:
+        all_files.extend(rotated)
+    if report_paths or rotated:
         dates_str = f"{dates_to_process[0]}" if len(dates_to_process) == 1 else f"{dates_to_process[0]}..{dates_to_process[-1]}"
         git_commit_and_push(all_files, dates_str)
 

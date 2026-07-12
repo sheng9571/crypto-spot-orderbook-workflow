@@ -388,17 +388,7 @@ def merge_overlap(group: OverlapGroup, config: Config) -> MergeResult | None:
         # Download all files in the overlap group
         tables = []
         for f in group.files:
-            with tempfile.NamedTemporaryFile(suffix=".parquet", delete=False) as tmp:
-                tmp_path = tmp.name
             try:
-                api.hf_hub_download(
-                    repo_id=config.hf_repo,
-                    repo_type="dataset",
-                    filename=f.path,
-                    local_dir=tempfile.gettempdir(),
-                    local_dir_use_symlinks=False,
-                )
-                # hf_hub_download returns a path, but let's use the direct download
                 downloaded = api.hf_hub_download(
                     repo_id=config.hf_repo,
                     repo_type="dataset",

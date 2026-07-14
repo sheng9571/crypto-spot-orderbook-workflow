@@ -568,12 +568,49 @@
           }
         }
       }
+    },
+    {
+      "date": "2026-07-13",
+      "total_files": 48,
+      "total_bytes": 182891640,
+      "gaps": [],
+      "by_exchange": {
+        "binance": {
+          "files": 48,
+          "bytes": 182891640,
+          "has_gaps": false
+        }
+      },
+      "by_symbol": {
+        "btcusdt": {
+          "files": 48,
+          "bytes": 182891640
+        }
+      },
+      "by_level": {
+        "l1": {
+          "files": 24,
+          "bytes": 108530477
+        },
+        "l2": {
+          "files": 24,
+          "bytes": 74361163
+        }
+      },
+      "by_exchange_symbol": {
+        "binance": {
+          "btcusdt": {
+            "files": 48,
+            "bytes": 182891640
+          }
+        }
+      }
     }
   ],
   "totals": {
-    "all_time_bytes": 174254169,
-    "all_time_files": 82,
+    "all_time_bytes": 357145809,
+    "all_time_files": 130,
     "first_date": "2026-07-10",
-    "last_date": "2026-07-12"
+    "last_date": "2026-07-13"
   }
 }

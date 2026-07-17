@@ -85,6 +85,7 @@ class MergeResult:
     rows_before: int
     rows_after: int
     overlap_duration_seconds: int
+    skipped_invalid: list[str] = field(default_factory=list)
 
 
 @dataclass
@@ -387,6 +388,7 @@ def merge_overlap(group: OverlapGroup, config: Config) -> MergeResult | None:
     try:
         # Download all files in the overlap group
         tables = []
+        skipped_invalid: list[str] = []
         for f in group.files:
             try:
                 downloaded = api.hf_hub_download(
@@ -394,11 +396,25 @@ def merge_overlap(group: OverlapGroup, config: Config) -> MergeResult | None:
                     repo_type="dataset",
                     filename=f.path,
                 )
-                table = pq.read_table(downloaded)
-                tables.append(table)
             except Exception as e:
                 logger.error("Failed to download %s: %s", f.path, e)
                 return None
+
+            try:
+                table = pq.read_table(downloaded)
+                tables.append(table)
+            except Exception as e:
+                # Invalid parquet file (e.g. corrupt, footer != PAR1)
+                logger.warning("Invalid parquet file, removing from HF: %s (%s)", f.path, e)
+                skipped_invalid.append(f.path)
+                try:
+                    api.delete_file(
+                        path_in_repo=f.path,
+                        repo_id=config.hf_repo,
+                        repo_type="dataset",
+                    )
+                except Exception as del_e:
+                    logger.warning("Failed to delete invalid file %s: %s", f.path, del_e)
 
         if not tables:
             return None
@@ -484,6 +500,7 @@ def merge_overlap(group: OverlapGroup, config: Config) -> MergeResult | None:
             rows_before=rows_before,
             rows_after=rows_after,
             overlap_duration_seconds=overlap_duration,
+            skipped_invalid=skipped_invalid,
         )
 
     except Exception as e:
@@ -679,6 +696,10 @@ def generate_report_md(
             lines.append(f"- Files merged: {len(m.files_merged)}")
             lines.append(f"- Rows before: {m.rows_before} → after: {m.rows_after}")
             lines.append(f"- Overlap duration: {m.overlap_duration_seconds}s")
+            if m.skipped_invalid:
+                lines.append(f"- ⚠️ Invalid files removed: {len(m.skipped_invalid)}")
+                for path in m.skipped_invalid:
+                    lines.append(f"  - `{path}`")
             lines.append("")
 
     return "\n".join(lines)

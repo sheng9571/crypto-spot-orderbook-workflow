@@ -396,9 +396,18 @@ def merge_overlap(group: OverlapGroup, config: Config) -> MergeResult | None:
                     repo_type="dataset",
                     filename=f.path,
                 )
-            except Exception as e:
-                logger.error("Failed to download %s: %s", f.path, e)
-                return None
+            except Exception:
+                # Retry with force_download for cache inconsistency
+                try:
+                    downloaded = api.hf_hub_download(
+                        repo_id=config.hf_repo,
+                        repo_type="dataset",
+                        filename=f.path,
+                        force_download=True,
+                    )
+                except Exception as e:
+                    logger.error("Failed to download %s: %s", f.path, e)
+                    return None
 
             try:
                 table = pq.read_table(downloaded)
@@ -473,8 +482,10 @@ def merge_overlap(group: OverlapGroup, config: Config) -> MergeResult | None:
             repo_type="dataset",
         )
 
-        # Delete originals
+        # Delete originals (skip files already removed as invalid)
         for f in group.files:
+            if f.path in skipped_invalid:
+                continue
             try:
                 api.delete_file(
                     path_in_repo=f.path,

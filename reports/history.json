@@ -1446,12 +1446,661 @@
           }
         }
       }
+    },
+    {
+      "date": "2026-07-18",
+      "total_files": 95,
+      "total_bytes": 145141834,
+      "gaps": [
+        {
+          "exchange": "binance",
+          "symbol": "btcusdt",
+          "level": "l2",
+          "hour": 0
+        },
+        {
+          "exchange": "binance",
+          "symbol": "btcusdt",
+          "level": "l2",
+          "hour": 1
+        },
+        {
+          "exchange": "binance",
+          "symbol": "btcusdt",
+          "level": "l2",
+          "hour": 2
+        },
+        {
+          "exchange": "binance",
+          "symbol": "btcusdt",
+          "level": "l2",
+          "hour": 3
+        },
+        {
+          "exchange": "binance",
+          "symbol": "btcusdt",
+          "level": "l2",
+          "hour": 4
+        },
+        {
+          "exchange": "binance",
+          "symbol": "btcusdt",
+          "level": "l2",
+          "hour": 5
+        },
+        {
+          "exchange": "binance",
+          "symbol": "btcusdt",
+          "level": "l2",
+          "hour": 6
+        },
+        {
+          "exchange": "binance",
+          "symbol": "btcusdt",
+          "level": "l2",
+          "hour": 7
+        },
+        {
+          "exchange": "binance",
+          "symbol": "btcusdt",
+          "level": "l2",
+          "hour": 8
+        },
+        {
+          "exchange": "binance",
+          "symbol": "btcusdt",
+          "level": "l2",
+          "hour": 9
+        },
+        {
+          "exchange": "binance",
+          "symbol": "btcusdt",
+          "level": "l2",
+          "hour": 10
+        },
+        {
+          "exchange": "binance",
+          "symbol": "btcusdt",
+          "level": "l2",
+          "hour": 11
+        },
+        {
+          "exchange": "binance",
+          "symbol": "btcusdt",
+          "level": "l2",
+          "hour": 12
+        },
+        {
+          "exchange": "binance",
+          "symbol": "btcusdt",
+          "level": "l2",
+          "hour": 13
+        },
+        {
+          "exchange": "binance",
+          "symbol": "btcusdt",
+          "level": "l2",
+          "hour": 14
+        },
+        {
+          "exchange": "binance",
+          "symbol": "btcusdt",
+          "level": "l2",
+          "hour": 15
+        },
+        {
+          "exchange": "binance",
+          "symbol": "btcusdt",
+          "level": "l2",
+          "hour": 16
+        },
+        {
+          "exchange": "binance",
+          "symbol": "btcusdt",
+          "level": "l2",
+          "hour": 17
+        },
+        {
+          "exchange": "binance",
+          "symbol": "btcusdt",
+          "level": "l2",
+          "hour": 18
+        },
+        {
+          "exchange": "binance",
+          "symbol": "btcusdt",
+          "level": "l2",
+          "hour": 19
+        },
+        {
+          "exchange": "binance",
+          "symbol": "btcusdt",
+          "level": "l2",
+          "hour": 20
+        },
+        {
+          "exchange": "binance",
+          "symbol": "btcusdt",
+          "level": "l2",
+          "hour": 21
+        },
+        {
+          "exchange": "binance",
+          "symbol": "btcusdt",
+          "level": "l2",
+          "hour": 22
+        },
+        {
+          "exchange": "binance",
+          "symbol": "btcusdt",
+          "level": "l2",
+          "hour": 23
+        },
+        {
+          "exchange": "htx",
+          "symbol": "btcusdt",
+          "level": "l1",
+          "hour": 23
+        },
+        {
+          "exchange": "htx",
+          "symbol": "btcusdt",
+          "level": "l2",
+          "hour": 0
+        },
+        {
+          "exchange": "htx",
+          "symbol": "btcusdt",
+          "level": "l2",
+          "hour": 1
+        },
+        {
+          "exchange": "htx",
+          "symbol": "btcusdt",
+          "level": "l2",
+          "hour": 2
+        },
+        {
+          "exchange": "htx",
+          "symbol": "btcusdt",
+          "level": "l2",
+          "hour": 3
+        },
+        {
+          "exchange": "htx",
+          "symbol": "btcusdt",
+          "level": "l2",
+          "hour": 4
+        },
+        {
+          "exchange": "htx",
+          "symbol": "btcusdt",
+          "level": "l2",
+          "hour": 5
+        },
+        {
+          "exchange": "htx",
+          "symbol": "btcusdt",
+          "level": "l2",
+          "hour": 6
+        },
+        {
+          "exchange": "htx",
+          "symbol": "btcusdt",
+          "level": "l2",
+          "hour": 7
+        },
+        {
+          "exchange": "htx",
+          "symbol": "btcusdt",
+          "level": "l2",
+          "hour": 8
+        },
+        {
+          "exchange": "htx",
+          "symbol": "btcusdt",
+          "level": "l2",
+          "hour": 9
+        },
+        {
+          "exchange": "htx",
+          "symbol": "btcusdt",
+          "level": "l2",
+          "hour": 10
+        },
+        {
+          "exchange": "htx",
+          "symbol": "btcusdt",
+          "level": "l2",
+          "hour": 11
+        },
+        {
+          "exchange": "htx",
+          "symbol": "btcusdt",
+          "level": "l2",
+          "hour": 12
+        },
+        {
+          "exchange": "htx",
+          "symbol": "btcusdt",
+          "level": "l2",
+          "hour": 13
+        },
+        {
+          "exchange": "htx",
+          "symbol": "btcusdt",
+          "level": "l2",
+          "hour": 14
+        },
+        {
+          "exchange": "htx",
+          "symbol": "btcusdt",
+          "level": "l2",
+          "hour": 15
+        },
+        {
+          "exchange": "htx",
+          "symbol": "btcusdt",
+          "level": "l2",
+          "hour": 16
+        },
+        {
+          "exchange": "htx",
+          "symbol": "btcusdt",
+          "level": "l2",
+          "hour": 17
+        },
+        {
+          "exchange": "htx",
+          "symbol": "btcusdt",
+          "level": "l2",
+          "hour": 18
+        },
+        {
+          "exchange": "htx",
+          "symbol": "btcusdt",
+          "level": "l2",
+          "hour": 19
+        },
+        {
+          "exchange": "htx",
+          "symbol": "btcusdt",
+          "level": "l2",
+          "hour": 20
+        },
+        {
+          "exchange": "htx",
+          "symbol": "btcusdt",
+          "level": "l2",
+          "hour": 21
+        },
+        {
+          "exchange": "htx",
+          "symbol": "btcusdt",
+          "level": "l2",
+          "hour": 22
+        },
+        {
+          "exchange": "htx",
+          "symbol": "btcusdt",
+          "level": "l2",
+          "hour": 23
+        },
+        {
+          "exchange": "poloniex",
+          "symbol": "btcusdt",
+          "level": "l2",
+          "hour": 0
+        },
+        {
+          "exchange": "poloniex",
+          "symbol": "btcusdt",
+          "level": "l2",
+          "hour": 1
+        },
+        {
+          "exchange": "poloniex",
+          "symbol": "btcusdt",
+          "level": "l2",
+          "hour": 2
+        },
+        {
+          "exchange": "poloniex",
+          "symbol": "btcusdt",
+          "level": "l2",
+          "hour": 3
+        },
+        {
+          "exchange": "poloniex",
+          "symbol": "btcusdt",
+          "level": "l2",
+          "hour": 4
+        },
+        {
+          "exchange": "poloniex",
+          "symbol": "btcusdt",
+          "level": "l2",
+          "hour": 5
+        },
+        {
+          "exchange": "poloniex",
+          "symbol": "btcusdt",
+          "level": "l2",
+          "hour": 6
+        },
+        {
+          "exchange": "poloniex",
+          "symbol": "btcusdt",
+          "level": "l2",
+          "hour": 7
+        },
+        {
+          "exchange": "poloniex",
+          "symbol": "btcusdt",
+          "level": "l2",
+          "hour": 8
+        },
+        {
+          "exchange": "poloniex",
+          "symbol": "btcusdt",
+          "level": "l2",
+          "hour": 9
+        },
+        {
+          "exchange": "poloniex",
+          "symbol": "btcusdt",
+          "level": "l2",
+          "hour": 10
+        },
+        {
+          "exchange": "poloniex",
+          "symbol": "btcusdt",
+          "level": "l2",
+          "hour": 11
+        },
+        {
+          "exchange": "poloniex",
+          "symbol": "btcusdt",
+          "level": "l2",
+          "hour": 12
+        },
+        {
+          "exchange": "poloniex",
+          "symbol": "btcusdt",
+          "level": "l2",
+          "hour": 13
+        },
+        {
+          "exchange": "poloniex",
+          "symbol": "btcusdt",
+          "level": "l2",
+          "hour": 14
+        },
+        {
+          "exchange": "poloniex",
+          "symbol": "btcusdt",
+          "level": "l2",
+          "hour": 15
+        },
+        {
+          "exchange": "poloniex",
+          "symbol": "btcusdt",
+          "level": "l2",
+          "hour": 16
+        },
+        {
+          "exchange": "poloniex",
+          "symbol": "btcusdt",
+          "level": "l2",
+          "hour": 17
+        },
+        {
+          "exchange": "poloniex",
+          "symbol": "btcusdt",
+          "level": "l2",
+          "hour": 18
+        },
+        {
+          "exchange": "poloniex",
+          "symbol": "btcusdt",
+          "level": "l2",
+          "hour": 19
+        },
+        {
+          "exchange": "poloniex",
+          "symbol": "btcusdt",
+          "level": "l2",
+          "hour": 20
+        },
+        {
+          "exchange": "poloniex",
+          "symbol": "btcusdt",
+          "level": "l2",
+          "hour": 21
+        },
+        {
+          "exchange": "poloniex",
+          "symbol": "btcusdt",
+          "level": "l2",
+          "hour": 22
+        },
+        {
+          "exchange": "poloniex",
+          "symbol": "btcusdt",
+          "level": "l2",
+          "hour": 23
+        },
+        {
+          "exchange": "bitstamp",
+          "symbol": "btcusdt",
+          "level": "l2",
+          "hour": 0
+        },
+        {
+          "exchange": "bitstamp",
+          "symbol": "btcusdt",
+          "level": "l2",
+          "hour": 1
+        },
+        {
+          "exchange": "bitstamp",
+          "symbol": "btcusdt",
+          "level": "l2",
+          "hour": 2
+        },
+        {
+          "exchange": "bitstamp",
+          "symbol": "btcusdt",
+          "level": "l2",
+          "hour": 3
+        },
+        {
+          "exchange": "bitstamp",
+          "symbol": "btcusdt",
+          "level": "l2",
+          "hour": 4
+        },
+        {
+          "exchange": "bitstamp",
+          "symbol": "btcusdt",
+          "level": "l2",
+          "hour": 5
+        },
+        {
+          "exchange": "bitstamp",
+          "symbol": "btcusdt",
+          "level": "l2",
+          "hour": 6
+        },
+        {
+          "exchange": "bitstamp",
+          "symbol": "btcusdt",
+          "level": "l2",
+          "hour": 7
+        },
+        {
+          "exchange": "bitstamp",
+          "symbol": "btcusdt",
+          "level": "l2",
+          "hour": 8
+        },
+        {
+          "exchange": "bitstamp",
+          "symbol": "btcusdt",
+          "level": "l2",
+          "hour": 9
+        },
+        {
+          "exchange": "bitstamp",
+          "symbol": "btcusdt",
+          "level": "l2",
+          "hour": 10
+        },
+        {
+          "exchange": "bitstamp",
+          "symbol": "btcusdt",
+          "level": "l2",
+          "hour": 11
+        },
+        {
+          "exchange": "bitstamp",
+          "symbol": "btcusdt",
+          "level": "l2",
+          "hour": 12
+        },
+        {
+          "exchange": "bitstamp",
+          "symbol": "btcusdt",
+          "level": "l2",
+          "hour": 13
+        },
+        {
+          "exchange": "bitstamp",
+          "symbol": "btcusdt",
+          "level": "l2",
+          "hour": 14
+        },
+        {
+          "exchange": "bitstamp",
+          "symbol": "btcusdt",
+          "level": "l2",
+          "hour": 15
+        },
+        {
+          "exchange": "bitstamp",
+          "symbol": "btcusdt",
+          "level": "l2",
+          "hour": 16
+        },
+        {
+          "exchange": "bitstamp",
+          "symbol": "btcusdt",
+          "level": "l2",
+          "hour": 17
+        },
+        {
+          "exchange": "bitstamp",
+          "symbol": "btcusdt",
+          "level": "l2",
+          "hour": 18
+        },
+        {
+          "exchange": "bitstamp",
+          "symbol": "btcusdt",
+          "level": "l2",
+          "hour": 19
+        },
+        {
+          "exchange": "bitstamp",
+          "symbol": "btcusdt",
+          "level": "l2",
+          "hour": 20
+        },
+        {
+          "exchange": "bitstamp",
+          "symbol": "btcusdt",
+          "level": "l2",
+          "hour": 21
+        },
+        {
+          "exchange": "bitstamp",
+          "symbol": "btcusdt",
+          "level": "l2",
+          "hour": 22
+        },
+        {
+          "exchange": "bitstamp",
+          "symbol": "btcusdt",
+          "level": "l2",
+          "hour": 23
+        }
+      ],
+      "by_exchange": {
+        "binance": {
+          "files": 24,
+          "bytes": 55692688,
+          "has_gaps": true
+        },
+        "bitstamp": {
+          "files": 24,
+          "bytes": 30050091,
+          "has_gaps": true
+        },
+        "htx": {
+          "files": 23,
+          "bytes": 22826587,
+          "has_gaps": true
+        },
+        "poloniex": {
+          "files": 24,
+          "bytes": 36572468,
+          "has_gaps": true
+        }
+      },
+      "by_symbol": {
+        "btcusdt": {
+          "files": 95,
+          "bytes": 145141834
+        }
+      },
+      "by_level": {
+        "l1": {
+          "files": 95,
+          "bytes": 145141834
+        }
+      },
+      "by_exchange_symbol": {
+        "binance": {
+          "btcusdt": {
+            "files": 24,
+            "bytes": 55692688
+          }
+        },
+        "bitstamp": {
+          "btcusdt": {
+            "files": 24,
+            "bytes": 30050091
+          }
+        },
+        "htx": {
+          "btcusdt": {
+            "files": 23,
+            "bytes": 22826587
+          }
+        },
+        "poloniex": {
+          "btcusdt": {
+            "files": 24,
+            "bytes": 36572468
+          }
+        }
+      }
     }
   ],
   "totals": {
-    "all_time_bytes": 1108561946,
-    "all_time_files": 366,
+    "all_time_bytes": 1253703780,
+    "all_time_files": 461,
     "first_date": "2026-07-10",
-    "last_date": "2026-07-17"
+    "last_date": "2026-07-18"
   }
 }

@@ -2095,12 +2095,109 @@
           }
         }
       }
+    },
+    {
+      "date": "2026-07-19",
+      "total_files": 91,
+      "total_bytes": 152894374,
+      "gaps": [
+        {
+          "exchange": "htx",
+          "symbol": "btcusdt",
+          "level": "l1",
+          "hour": 19
+        },
+        {
+          "exchange": "htx",
+          "symbol": "btcusdt",
+          "level": "l1",
+          "hour": 20
+        },
+        {
+          "exchange": "htx",
+          "symbol": "btcusdt",
+          "level": "l1",
+          "hour": 21
+        },
+        {
+          "exchange": "htx",
+          "symbol": "btcusdt",
+          "level": "l1",
+          "hour": 22
+        },
+        {
+          "exchange": "htx",
+          "symbol": "btcusdt",
+          "level": "l1",
+          "hour": 23
+        }
+      ],
+      "by_exchange": {
+        "binance": {
+          "files": 24,
+          "bytes": 64892676,
+          "has_gaps": false
+        },
+        "bitstamp": {
+          "files": 24,
+          "bytes": 30443960,
+          "has_gaps": false
+        },
+        "htx": {
+          "files": 19,
+          "bytes": 20637172,
+          "has_gaps": true
+        },
+        "poloniex": {
+          "files": 24,
+          "bytes": 36920566,
+          "has_gaps": false
+        }
+      },
+      "by_symbol": {
+        "btcusdt": {
+          "files": 91,
+          "bytes": 152894374
+        }
+      },
+      "by_level": {
+        "l1": {
+          "files": 91,
+          "bytes": 152894374
+        }
+      },
+      "by_exchange_symbol": {
+        "binance": {
+          "btcusdt": {
+            "files": 24,
+            "bytes": 64892676
+          }
+        },
+        "bitstamp": {
+          "btcusdt": {
+            "files": 24,
+            "bytes": 30443960
+          }
+        },
+        "htx": {
+          "btcusdt": {
+            "files": 19,
+            "bytes": 20637172
+          }
+        },
+        "poloniex": {
+          "btcusdt": {
+            "files": 24,
+            "bytes": 36920566
+          }
+        }
+      }
     }
   ],
   "totals": {
-    "all_time_bytes": 1253703780,
-    "all_time_files": 461,
+    "all_time_bytes": 1406598154,
+    "all_time_files": 552,
     "first_date": "2026-07-10",
-    "last_date": "2026-07-18"
+    "last_date": "2026-07-19"
   }
 }

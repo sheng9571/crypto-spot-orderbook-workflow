@@ -801,7 +801,7 @@ def generate_summary_readme(history: dict) -> str:
             gap_count = len(entry.get("gaps", []))
             gap_str = f"\u26a0\ufe0f {gap_count}" if gap_count > 0 else "\u2705 0"
             lines.append(
-                f"| [{entry['date']}](daily/{entry['date']}.md) "
+                f"| [{entry['date']}](reports/daily/{entry['date']}.md) "
                 f"| {entry['total_files']} "
                 f"| {_format_bytes(entry['total_bytes'])} "
                 f"| {gap_str} |"

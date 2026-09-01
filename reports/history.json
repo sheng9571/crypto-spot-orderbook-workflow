@@ -5421,12 +5421,103 @@
           }
         }
       }
+    },
+    {
+      "date": "2026-08-31",
+      "total_files": 92,
+      "total_bytes": 233015450,
+      "gaps": [
+        {
+          "exchange": "binance",
+          "symbol": "btcusdt",
+          "level": "l1",
+          "hour": 23
+        },
+        {
+          "exchange": "htx",
+          "symbol": "btcusdt",
+          "level": "l1",
+          "hour": 23
+        },
+        {
+          "exchange": "poloniex",
+          "symbol": "btcusdt",
+          "level": "l1",
+          "hour": 23
+        },
+        {
+          "exchange": "bitstamp",
+          "symbol": "btcusdt",
+          "level": "l1",
+          "hour": 23
+        }
+      ],
+      "by_exchange": {
+        "binance": {
+          "files": 23,
+          "bytes": 126479998,
+          "has_gaps": true
+        },
+        "bitstamp": {
+          "files": 23,
+          "bytes": 34352684,
+          "has_gaps": true
+        },
+        "htx": {
+          "files": 23,
+          "bytes": 35243041,
+          "has_gaps": true
+        },
+        "poloniex": {
+          "files": 23,
+          "bytes": 36939727,
+          "has_gaps": true
+        }
+      },
+      "by_symbol": {
+        "btcusdt": {
+          "files": 92,
+          "bytes": 233015450
+        }
+      },
+      "by_level": {
+        "l1": {
+          "files": 92,
+          "bytes": 233015450
+        }
+      },
+      "by_exchange_symbol": {
+        "binance": {
+          "btcusdt": {
+            "files": 23,
+            "bytes": 126479998
+          }
+        },
+        "bitstamp": {
+          "btcusdt": {
+            "files": 23,
+            "bytes": 34352684
+          }
+        },
+        "htx": {
+          "btcusdt": {
+            "files": 23,
+            "bytes": 35243041
+          }
+        },
+        "poloniex": {
+          "btcusdt": {
+            "files": 23,
+            "bytes": 36939727
+          }
+        }
+      }
     }
   ],
   "totals": {
-    "all_time_bytes": 9722375572,
-    "all_time_files": 4507,
+    "all_time_bytes": 9955391022,
+    "all_time_files": 4599,
     "first_date": "2026-07-10",
-    "last_date": "2026-08-30"
+    "last_date": "2026-08-31"
   }
 }

@@ -7194,12 +7194,97 @@
           }
         }
       }
+    },
+    {
+      "date": "2026-09-24",
+      "total_files": 93,
+      "total_bytes": 237845553,
+      "gaps": [
+        {
+          "exchange": "binance",
+          "symbol": "btcusdt",
+          "level": "l1",
+          "hour": 23
+        },
+        {
+          "exchange": "htx",
+          "symbol": "btcusdt",
+          "level": "l1",
+          "hour": 23
+        },
+        {
+          "exchange": "bitstamp",
+          "symbol": "btcusdt",
+          "level": "l1",
+          "hour": 23
+        }
+      ],
+      "by_exchange": {
+        "binance": {
+          "files": 23,
+          "bytes": 128235884,
+          "has_gaps": true
+        },
+        "bitstamp": {
+          "files": 23,
+          "bytes": 32277197,
+          "has_gaps": true
+        },
+        "htx": {
+          "files": 23,
+          "bytes": 37193122,
+          "has_gaps": true
+        },
+        "poloniex": {
+          "files": 24,
+          "bytes": 40139350,
+          "has_gaps": false
+        }
+      },
+      "by_symbol": {
+        "btcusdt": {
+          "files": 93,
+          "bytes": 237845553
+        }
+      },
+      "by_level": {
+        "l1": {
+          "files": 93,
+          "bytes": 237845553
+        }
+      },
+      "by_exchange_symbol": {
+        "binance": {
+          "btcusdt": {
+            "files": 23,
+            "bytes": 128235884
+          }
+        },
+        "bitstamp": {
+          "btcusdt": {
+            "files": 23,
+            "bytes": 32277197
+          }
+        },
+        "htx": {
+          "btcusdt": {
+            "files": 23,
+            "bytes": 37193122
+          }
+        },
+        "poloniex": {
+          "btcusdt": {
+            "files": 24,
+            "bytes": 40139350
+          }
+        }
+      }
     }
   ],
   "totals": {
-    "all_time_bytes": 14764843479,
-    "all_time_files": 6781,
+    "all_time_bytes": 15002689032,
+    "all_time_files": 6874,
     "first_date": "2026-07-10",
-    "last_date": "2026-09-23"
+    "last_date": "2026-09-24"
   }
 }

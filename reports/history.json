@@ -8112,12 +8112,78 @@
           }
         }
       }
+    },
+    {
+      "date": "2026-10-07",
+      "total_files": 96,
+      "total_bytes": 242780282,
+      "gaps": [],
+      "by_exchange": {
+        "binance": {
+          "files": 24,
+          "bytes": 133137651,
+          "has_gaps": false
+        },
+        "bitstamp": {
+          "files": 24,
+          "bytes": 31969751,
+          "has_gaps": false
+        },
+        "htx": {
+          "files": 24,
+          "bytes": 39182333,
+          "has_gaps": false
+        },
+        "poloniex": {
+          "files": 24,
+          "bytes": 38490547,
+          "has_gaps": false
+        }
+      },
+      "by_symbol": {
+        "btcusdt": {
+          "files": 96,
+          "bytes": 242780282
+        }
+      },
+      "by_level": {
+        "l1": {
+          "files": 96,
+          "bytes": 242780282
+        }
+      },
+      "by_exchange_symbol": {
+        "binance": {
+          "btcusdt": {
+            "files": 24,
+            "bytes": 133137651
+          }
+        },
+        "bitstamp": {
+          "btcusdt": {
+            "files": 24,
+            "bytes": 31969751
+          }
+        },
+        "htx": {
+          "btcusdt": {
+            "files": 24,
+            "bytes": 39182333
+          }
+        },
+        "poloniex": {
+          "btcusdt": {
+            "files": 24,
+            "bytes": 38490547
+          }
+        }
+      }
     }
   ],
   "totals": {
-    "all_time_bytes": 17375574363,
-    "all_time_files": 8020,
+    "all_time_bytes": 17618354645,
+    "all_time_files": 8116,
     "first_date": "2026-07-10",
-    "last_date": "2026-10-06"
+    "last_date": "2026-10-07"
   }
 }
